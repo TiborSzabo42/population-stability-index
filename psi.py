@@ -68,6 +68,7 @@ class psi:
             df_psi=df_psi.groupby('grp', as_index=False).agg(
                 val_min=('value', 'min'),
             ).sort_values('val_min').reset_index(drop=True)
+            df_psi['val_min'] = df_psi['val_min'].astype('float')
             df_psi['val_max'] = df_psi['val_min'].shift(-1)
             
             df_psi.iloc[0,1] = -np.inf
