@@ -10,6 +10,10 @@ df_expected = pd.DataFrame({'var': np.random.rand(100)})
 PSI = psi()
 PSI.calc(actual=df_actual, expected=df_expected, var='var')
 
+# Rounding
+PSI = psi(rounding_digit=2)
+PSI.calc(actual=df_actual, expected=df_expected, var='var')
+
 # Simplified output
 PSI = psi(psi_only=True)
 PSI.calc(actual=df_actual, expected=df_expected, var='var')
