@@ -9,6 +9,7 @@ class psi:
     bins (int): Number of bins applied for numerical columns
     min_unique_val (int): Minimum number of unique values required for quantile based PSI calculation
     psi_only (bool): if False (default) then a full report returned, otherwise only the value of PSI
+    rounding_digit (int): digits to be rounded to (default: None)
 
     Returns:
     if psi_only=False then pd.DataFrame
@@ -18,11 +19,13 @@ class psi:
     def __init__(self,
                  bins:int=10,
                  min_unique_val:int=10,
-                 psi_only:bool=False):
+                 psi_only:bool=False,
+                 rounding_digit:int=None):
 
         self.bins=bins
         self.min_unique_val=min_unique_val
         self.psi_only=psi_only
+        self.rounding_digit=rounding_digit
 
     def calc(self, actual:pd.DataFrame, expected:pd.DataFrame, var:str):
         """
@@ -46,6 +49,12 @@ class psi:
 
         # Determines the type of the variable
         if (np.issubdtype(df_exp[var].dtype, np.number)) and (n_uniqe_vals >= self.min_unique_val):
+
+            # Do rounding if requested
+            if self.rounding_digit:
+                df_act[var] = np.round(df_act[var], self.rounding_digit)
+                df_psi[var] = np.round(df_psi[var], self.rounding_digit)
+                df_psi = df_psi.groupby([var], as_index=False).agg(n_exp=('n_exp', 'sum'))
 
             # Calculates quantile based ranks
             df_psi["grp"] = pd.qcut(df_psi[var], q = self.bins, labels=False) + 1
