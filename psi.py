@@ -54,22 +54,26 @@ class psi:
                 df_act[var] = np.round(df_act[var], self.rounding_digit)
                 df_exp[var] = np.round(df_exp[var], self.rounding_digit)
 
-            # Checks if the data is conctentrated around a
-            # single value more than (#bins-1) / #bins
-            # meaning that no standalone bin could be formulated
-            # swithces to single value based qunatile formulation
+            # Checks if the data is too conctentrated 
+            # that the rest doesn't take up to form a 
+            # standalone bin (share is less than 1 / #bins
+            # It that case mode and the rest are groupped into
+            # two bins
             cntr = np.max(df_exp.groupby([var]).size())
             cntr = cntr / df_exp.shape[0]
 
-            if cntr >= (self.bins - 1) / self.bins:
+            if 1 - cntr < 1 / self.bins:
+                # Calculates mode and 
+                # classifies it into a standalone bin
+                freq_val = df_exp[var].mode()[0]
                 df_psi = df_exp.groupby([var], as_index=False).agg(n_exp=(var, 'size'))
+                df_psi['grp'] = np.where(df_psi[var] == freq_val, 1, 2)
 
             else:
+                # Quantile based grouping
                 df_psi = df_exp
                 df_psi['n_exp'] = 1
-
-            # Calculates quantile
-            df_psi['grp'] = pd.qcut(df_psi[var], q = self.bins, labels=False, duplicates='drop') + 1
+                df_psi['grp'] = pd.qcut(df_psi[var], q = self.bins, labels=False, duplicates='drop') + 1
 
             # Adds interval start and end values
             df_psi=df_psi.groupby('grp', as_index=False).agg(

@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 
 # Usage: Numerical example
-df_actual = pd.DataFrame({'var': np.random.rand(100)})
+df_actual = pd.DataFrame({'var': np.random.rand(1000)})
 df_actual.iloc[2, 0] = np.nan
-df_expected = pd.DataFrame({'var': np.random.rand(100)})
+df_expected = pd.DataFrame({'var': np.random.rand(1000)})
 
 PSI = psi()
 PSI.calc(actual=df_actual, expected=df_expected, var='var')
@@ -17,6 +17,13 @@ PSI.calc(actual=df_actual, expected=df_expected, var='var')
 # Simplified output
 PSI = psi(psi_only=True)
 PSI.calc(actual=df_actual, expected=df_expected, var='var')
+
+# Too concentrated
+df_actual['var2'] = np.where(df_actual['var'] <= 0.82, -1, df_actual['var'])
+df_expected['var2'] = np.where(df_expected['var'] <= 0.82, -1, df_expected['var'])
+
+PSI = psi(bins=5,)
+PSI.calc(actual=df_actual, expected=df_expected, var='var2')
 
 # Usage: Object example
 df_actual = pd.DataFrame({
